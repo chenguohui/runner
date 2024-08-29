@@ -10,6 +10,7 @@ NODE_ALPINE_URL=https://github.com/actions/alpine_nodejs/releases/download
 NODE16_VERSION="16.20.2"
 NODE20_VERSION="20.13.1"
 NODE16_UNOFFICIAL_VERSION="16.20.0" # used only for win-arm64, remove node16 unofficial version when official version is available
+NODE18_UNOFFICIAL_VERSION="18.20.4" # used only for linux-loongarch64
 
 get_abs_path() {
   # exploits the fact that pwd will print abs path when no args
@@ -189,4 +190,9 @@ fi
 if [[ "$PACKAGERUNTIME" == "linux-arm" ]]; then
     acquireExternalTool "$NODE_URL/v${NODE16_VERSION}/node-v${NODE16_VERSION}-linux-armv7l.tar.gz" node16 fix_nested_dir
     acquireExternalTool "$NODE_URL/v${NODE20_VERSION}/node-v${NODE20_VERSION}-linux-armv7l.tar.gz" node20 fix_nested_dir
+fi
+
+if [[ "$PACKAGERUNTIME" == "linux-loongarch64" ]]; then
+    acquireExternalTool "$UNOFFICIAL_NODE_URL/v${NODE18_UNOFFICIAL_VERSION}/node-v${NODE18_UNOFFICIAL_VERSION}-linux-loong64.tar.gz" node18 fix_nested_dir
+    acquireExternalTool "$UNOFFICIAL_NODE_URL/v${NODE20_VERSION}/node-v${NODE20_VERSION}-linux-loong64.tar.gz" node20 fix_nested_dir
 fi
