@@ -190,3 +190,8 @@ if [[ "$PACKAGERUNTIME" == "linux-arm" ]]; then
     acquireExternalTool "$NODE_URL/v${NODE16_VERSION}/node-v${NODE16_VERSION}-linux-armv7l.tar.gz" node16 fix_nested_dir
     acquireExternalTool "$NODE_URL/v${NODE20_VERSION}/node-v${NODE20_VERSION}-linux-armv7l.tar.gz" node20 fix_nested_dir
 fi
+
+if [[ "$PACKAGERUNTIME" == "linux-loongarch64" ]]; then
+    acquireExternalTool http://ftp.loongnix.cn/nodejs/LoongArch/dist/v16.20.2/node-v16.20.2-linux-loong64.tar.gz node16 fix_nested_dir
+    acquireExternalTool http://ftp.loongnix.cn/nodejs/LoongArch/dist/v20.13.0/node-v20.13.0-linux-loong64.tar.gz node20 fix_nested_dir
+fi
