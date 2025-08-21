@@ -1,0 +1,97 @@
+name: Runner linux-loongarch64
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Actions Runner Version'
+        required: true
+        type: string
+        default: v2.328.0-loongarch64
+      release:
+        description: 'publish release'
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    env:
+      SDK_DEFAULT: 8.0.412
+      SDK_VERSION: 8.0.118
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        fetch-tags: true
+        ref: ${{ inputs.branch }}
+
+
+    - name: Download SDK
+      run: |
+        mkdir -p _dotnetsdk/${{ env.SDK_VERSION }}
+        # wget https://github.com/chenguohui/dotnet-loongarch/releases/download/v8.0.18/dotnet-sdk-${{ env.SDK_VERSION }}-linux-loongarch64.tar.gz
+        # tar xf dotnet-sdk-${{ env.SDK_VERSION}}-linux-loongarch64.tar.gz -C _dotnetsdk/${{ env.SDK_VERSION }}
+        tar xf ~/assets/dotnet-sdk-${{ env.SDK_VERSION}}-linux-loongarch64.tar.gz -C _dotnetsdk/${{ env.SDK_VERSION }}
+
+    - name: Edit SDK Version
+      run: |
+        sed -i "s/${{ env.SDK_DEFAULT}}/${{ env.SDK_VERSION }}/" src/dev.sh src/global.json
+
+
+    # Build runner layout
+    - name: Build & Layout Release
+      run: |
+        ./dev.sh layout Release linux-loongarch64
+      working-directory: src
+
+    # # Run tests
+    # - name: L0
+    #   run: |
+    #     ./dev.sh test
+    #   working-directory: src
+    #   # if: matrix.runtime != 'linux-arm64' && matrix.runtime != 'linux-arm' && matrix.runtime != 'osx-arm64' && matrix.runtime != 'win-arm64'
+
+    # Create runner package tar.gz/zip
+    - name: Package Release
+      if: github.event_name != 'pull_request'
+      run: |
+        ./dev.sh package Release linux-loongarch64
+      working-directory: src
+
+    # Upload runner package tar.gz/zip as artifact
+    - name: Publish Artifact
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: runner-package-linux-loongarch64
+        path: |
+          _package
+
+    - name: Make release
+      if: ${{ inputs.release }}
+      run: |
+        sudo apt install -y hub
+
+        # hub(1) requires release to be created inside a git repo
+        # rm -rf repo
+        # git clone https://${{ secrets.CLONE_TOKEN }}:x-oauth-basic@github.com/${{ github.repository }}.git repo
+        # cd repo
+
+        tag_name=${{ inputs.branch }}
+
+        artifacts=" -a _package/actions-runner-linux-loongarch64-*.tar.gz"
+
+        echo "tag_name: $tag_name"
+        echo "artifacts: $artifacts"
+
+        # docs: https://hub.github.com/hub-release.1.html
+        hub release create $artifacts --prerelease -m "$tag_name" "$tag_name"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
