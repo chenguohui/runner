@@ -7,7 +7,7 @@ on:
         description: 'Actions Runner Version'
         required: true
         type: string
-        default: v2.329.0-loongarch64
+        default: v2.330.0-loongarch64
       release:
         description: 'publish release'
         type: boolean
@@ -18,7 +18,7 @@ jobs:
     runs-on: self-hosted
 
     env:
-      SDK_DEFAULT: 8.0.413
+      SDK_DEFAULT: 8.0.416
       SDK_VERSION: 8.0.121
 
     permissions:
